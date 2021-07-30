@@ -1,0 +1,44 @@
+//Bulk Data upload from csv file to DB
+
+mysql> use uploadcsv;
+Database changed
+mysql> create table upload1(user_id int PRIMARY KEY,title varchar(255),expired_date date,amount decimal(10,2));
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> desc upload1;
++--------------+---------------+------+-----+---------+-------+
+| Field        | Type          | Null | Key | Default | Extra |
++--------------+---------------+------+-----+---------+-------+
+| user_id      | int           | NO   | PRI | NULL    |       |
+| title        | varchar(255)  | YES  |     | NULL    |       |
+| expired_date | date          | YES  |     | NULL    |       |
+| amount       | decimal(10,2) | YES  |     | NULL    |       |
++--------------+---------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> LOAD DATA INFILE "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/upload2.csv"
+    -> INTO TABLE upload1
+    -> FIELDS TERMINATED BY ','
+    -> ENCLOSED BY ""
+    -> LINES TERMINATED BY '\n'
+    -> IGNORE 1 ROWS;
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from upload1;
++---------+----------------+--------------+---------+
+| user_id | title          | expired_date | amount  |
++---------+----------------+--------------+---------+
+|       5 | Spring Break   | 2019-04-01   | 2000.00 |
+|       6 | Back to school | 2019-09-01   |   30.00 |
+|       7 | summer         | 2019-08-25   |   40.00 |
+|       8 | summer         | 2019-08-26   |   80.00 |
++---------+----------------+--------------+---------+
+4 rows in set (0.00 sec)
+
+//Bulk Data Download From DB To Csv File
+
+mysql> SELECT * FROM upload INTO OUTFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/download1.csv'
+    -> FIELDS TERMINATED BY ','
+    -> LINES TERMINATED BY '\r\n';
+Query OK, 4 rows affected (0.01 sec)
