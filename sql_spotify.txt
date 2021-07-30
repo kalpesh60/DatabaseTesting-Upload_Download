@@ -1,0 +1,129 @@
+mysql> CREATE DATABASE spotify;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| addressbookservice |
+| information_schema |
+| mysql              |
+| payroll_service    |
+| performance_schema |
+| sakila             |
+| spotify            |
+| sys                |
+| up                 |
+| world              |
++--------------------+
+10 rows in set (0.00 sec)
+
+mysql> USE spotify;
+Database changed
+
+mysql> CREATE TABLE User(user_id int(20) PRIMARY KEY, user_name varchar(30),user_email varchar(30),user_password varchar(30));
+Query OK, 0 rows affected, 1 warning (0.04 sec)
+
+mysql> desc user;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| user_id       | int         | NO   | PRI | NULL    |       |
+| user_name     | varchar(30) | YES  |     | NULL    |       |
+| user_email    | varchar(30) | YES  |     | NULL    |       |
+| user_password | varchar(30) | YES  |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+CREATE TABLE playlist(playlist_id int(30) PRIMARY KEY,playlist_name varchar(30),user_id int,CONSTRAINT FK_user_id FOREIGN KEY(user_id) REFERENCES user(user_id));
+Query OK, 0 rows affected, 1 warning (0.04 sec)
+
+mysql> desc playlist;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| playlist_id   | int         | NO   | PRI | NULL    |       |
+| playlist_name | varchar(30) | YES  |     | NULL    |       |
+| user_id       | int         | YES  | MUL | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+
+mysql> INSERT INTO user values(100,'kalpesh','kalpesh60@gmail.com','123456'),(101,'vijay','vijay@gmail.com','456456');
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from user;
++---------+-----------+---------------------+---------------+
+| user_id | user_name | user_email          | user_password |
++---------+-----------+---------------------+---------------+
+|     100 | kalpesh   | kalpesh60@gmail.com | 123456        |
+|     101 | vijay     | vijay@gmail.com     | 456456        |
++---------+-----------+---------------------+---------------+
+2 rows in set (0.00 sec)
+
+mysql> INSERT INTO playlist values(12345,'myPlaylist',100),(12346,'myPlaylist2',101);
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from playlist;
++-------------+---------------+---------+
+| playlist_id | playlist_name | user_id |
++-------------+---------------+---------+
+|       12345 | myPlaylist    |     100 |
+|       12346 | myPlaylist2   |     101 |
++-------------+---------------+---------+
+2 rows in set (0.00 sec)
+
+mysql> CREATE TABLE tracks(track_id int(30) PRIMARY KEY,track_name varchar(30),track_artist varchar(30),playlist_id int,CONSTRAINT FK_playlist_id FOREIGN KEY(playlist_id) REFERENCES playlist(playlist_id));
+Query OK, 0 rows affected, 1 warning (0.05 sec)
+
+mysql> desc tracks;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| track_id     | int         | NO   | PRI | NULL    |       |
+| track_name   | varchar(30) | YES  |     | NULL    |       |
+| track_artist | varchar(30) | YES  |     | NULL    |       |
+| playlist_id  | int         | YES  | MUL | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> INSERT INTO tracks values(1001,'myTrack1','vijay,ajay',12345),(1002,'myTrack2','acd,hjk',12345);
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from tracks;
++----------+------------+--------------+-------------+
+| track_id | track_name | track_artist | playlist_id |
++----------+------------+--------------+-------------+
+|     1001 | myTrack1   | vijay,ajay   |       12345 |
+|     1002 | myTrack2   | acd,hjk      |       12345 |
++----------+------------+--------------+-------------+
+2 rows in set (0.00 sec)
+
+
+mysql> select * from user
+    -> where user_id in (select user_id from playlist where playlist_name = 'myPlaylist');
++---------+-----------+---------------------+---------------+
+| user_id | user_name | user_email          | user_password |
++---------+-----------+---------------------+---------------+
+|     100 | kalpesh   | kalpesh60@gmail.com | 123456        |
++---------+-----------+---------------------+---------------+
+1 row in set (0.01 sec)
+
+mysql> select user_name from user
+    -> where user_id in (select user_id from playlist where playlist_name = 'myPlaylist');
++-----------+
+| user_name |
++-----------+
+| kalpesh   |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> select * from playlist
+    -> where playlist_id in (select playlist_id from playlist where playlist_name = 'myPlaylist');
++-------------+---------------+---------+
+| playlist_id | playlist_name | user_id |
++-------------+---------------+---------+
+|       12345 | myPlaylist    |     100 |
++-------------+---------------+---------+
+1 row in set (0.00 sec)
