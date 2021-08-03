@@ -51,7 +51,7 @@ mysql> INSERT INTO user values(100,'kalpesh','kalpesh60@gmail.com','123456'),(10
 Query OK, 2 rows affected (0.01 sec)
 Records: 2  Duplicates: 0  Warnings: 0
 
-mysql> select * from user;
+mysql> SELECT * from user;
 +---------+-----------+---------------------+---------------+
 | user_id | user_name | user_email          | user_password |
 +---------+-----------+---------------------+---------------+
@@ -64,7 +64,7 @@ mysql> INSERT INTO playlist values(12345,'myPlaylist',100),(12346,'myPlaylist2',
 Query OK, 2 rows affected (0.01 sec)
 Records: 2  Duplicates: 0  Warnings: 0
 
-mysql> select * from playlist;
+mysql> SELECT * from playlist;
 +-------------+---------------+---------+
 | playlist_id | playlist_name | user_id |
 +-------------+---------------+---------+
@@ -91,7 +91,7 @@ mysql> INSERT INTO tracks values(1001,'myTrack1','vijay,ajay',12345),(1002,'myTr
 Query OK, 2 rows affected (0.01 sec)
 Records: 2  Duplicates: 0  Warnings: 0
 
-mysql> select * from tracks;
+mysql> SELECT * from tracks;
 +----------+------------+--------------+-------------+
 | track_id | track_name | track_artist | playlist_id |
 +----------+------------+--------------+-------------+
@@ -101,8 +101,8 @@ mysql> select * from tracks;
 2 rows in set (0.00 sec)
 
 
-mysql> select * from user
-    -> where user_id in (select user_id from playlist where playlist_name = 'myPlaylist');
+mysql> SELECT * FROM user
+    -> WHERE user_id IN (SELECT user_id FROM playlist WHERE playlist_name = 'myPlaylist');
 +---------+-----------+---------------------+---------------+
 | user_id | user_name | user_email          | user_password |
 +---------+-----------+---------------------+---------------+
@@ -110,8 +110,8 @@ mysql> select * from user
 +---------+-----------+---------------------+---------------+
 1 row in set (0.01 sec)
 
-mysql> select user_name from user
-    -> where user_id in (select user_id from playlist where playlist_name = 'myPlaylist');
+mysql> SELECT user_name FROM user
+    -> WHERE user_id IN (SELECT user_id FROM playlist WHERE playlist_name = 'myPlaylist');
 +-----------+
 | user_name |
 +-----------+
@@ -119,11 +119,85 @@ mysql> select user_name from user
 +-----------+
 1 row in set (0.00 sec)
 
-mysql> select * from playlist
-    -> where playlist_id in (select playlist_id from playlist where playlist_name = 'myPlaylist');
+mysql> SELECT * FROM playlist
+    -> WHERE playlist_id IN (SELECT playlist_id FROM playlist WHERE playlist_name = 'myPlaylist');
 +-------------+---------------+---------+
 | playlist_id | playlist_name | user_id |
 +-------------+---------------+---------+
 |       12345 | myPlaylist    |     100 |
 +-------------+---------------+---------+
 1 row in set (0.00 sec)
+
+mysql> SELECT tracks.track_name FROM tracks 
+       INNER JOIN playlist 
+       ON playlist.playlist_id = tracks.playlist_id;
++------------+
+| track_name |
++------------+
+| myTrack1   |
+| myTrack2   |
++------------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT tracks.track_name 
+       FROM ((tracks INNER JOIN playlist ON playlist.playlist_id = tracks.playlist_id)
+       INNER JOIN user ON user.user_id = playlist.user_id);
++------------+
+| track_name |
++------------+
+| myTrack1   |
+| myTrack2   |
++------------+
+
+
+mysql> SELECT tracks.track_name, playlist.playlist_id 
+       FROM ((tracks INNER JOIN playlist ON playlist.playlist_id = tracks.playlist_id)
+    -> INNER JOIN user ON user.user_id = playlist.user_id);
++------------+-------------+
+| track_name | playlist_id |
++------------+-------------+
+| myTrack1   |       12345 |
+| myTrack2   |       12345 |
++------------+-------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT tracks.track_name, user.user_id 
+       FROM ((tracks INNER JOIN playlist ON playlist.playlist_id = tracks.playlist_id)
+    -> INNER JOIN user ON user.user_id = playlist.user_id);
++------------+---------+
+| track_name | user_id |
++------------+---------+
+| myTrack1   |     100 |
+| myTrack2   |     100 |
++------------+---------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT User.user_name,playlist.playlist_name
+    -> FROM user
+    -> CROSS JOIN playlist;
++-----------+---------------+
+| user_name | playlist_name |
++-----------+---------------+
+| kalpesh   | myPlaylist2   |
+| kalpesh   | myPlaylist    |
+| vijay     | myPlaylist2   |
+| vijay     | myPlaylist    |
+| ajay      | myPlaylist2   |
+| ajay      | myPlaylist    |
+| ajay1     | myPlaylist2   |
+| ajay1     | myPlaylist    |
+| ajay1     | myPlaylist2   |
+| ajay1     | myPlaylist    |
++-----------+---------------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT tracks.track_name,user.user_id
+    -> FROM ((tracks INNER JOIN playlist ON playlist.playlist_id = tracks.playlist_id)
+    -> INNER JOIN user ON user.user_id = playlist.user_id) where user.user_id = 100;
++------------+---------+
+| track_name | user_id |
++------------+---------+
+| myTrack1   |     100 |
+| myTrack2   |     100 |
++------------+---------+
+2 rows in set (0.01 sec)
